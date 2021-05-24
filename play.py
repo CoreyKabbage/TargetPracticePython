@@ -1,4 +1,7 @@
-import sys, random, time
+import sys
+import random
+import time
+import atexit
 
 import pygame
 
@@ -11,6 +14,7 @@ from button import Button
 from interface import Lives
 from interface import ScoreBoard
 
+
 class TargetPractice:
     # Overall class to manage game assets and behavior.
 
@@ -20,7 +24,7 @@ class TargetPractice:
         self.settings = Settings()
         self.sysfont = pygame.font.get_default_font()
 
-        #self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        # self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.screen = pygame.display.set_mode((1280, 720))
         self.settings.screen_width = self.screen.get_rect().width
         self.settings.screen_height = self.screen.get_rect().height
@@ -43,7 +47,7 @@ class TargetPractice:
 
         self.timer = pygame.time.Clock()
 
-        #starter tick
+        # starter tick
         self.start_ticks = pygame.time.get_ticks()
 
         # seconds for the target lifetime timer.
@@ -53,16 +57,15 @@ class TargetPractice:
         # font for the target lifetime timer.
         self.timerfont = pygame.font.Font("Pixellettersfull.ttf", 32)
 
-        self.timertext = self.timerfont.render("0", True, (0, 0, 0),
-self.settings.bg_color)
+        self.timertext = self.timerfont.render("0", True, (0, 0, 0), self.settings.bg_color)
 
         self.timerrect = self.timertext.get_rect()
 
-        #Lives display
+        # Lives display
         self.lives = pygame.sprite.Group()
         self.lives_left = self.settings.ship_limit
 
-        #Texts for game over screen and time out.
+        # Texts for game over screen and time out.
         self.infofont = pygame.font.Font("Pixellettersfull.ttf", 48)
         self.game_over_text = self.infofont.render("Game Over", 1, (255, 100, 100))
         self.time_out_text = self.infofont.render("Time up!", 1, (255, 100, 100))
@@ -90,19 +93,16 @@ self.settings.bg_color)
 
     def _check_keydown_events(self, event):
         # Respond to key presses.
-            if event.key == pygame.K_RIGHT:
-                # Move the ship to the right.
-                self.ship.moving_right = True
-            elif event.key == pygame.K_LEFT:
-                # Move the ship to the left.
-                self.ship.moving_left = True
-            elif event.key == pygame.K_SPACE:
-                self._fire_bullet()
-            elif event.key == pygame.K_ESCAPE:
-                self.stats.score_file = open("highscore.txt", "w")
-                self.stats.score_file.write(self.stats.high_score)
-                self.stats.score_file.close()
-                sys.exit()
+        if event.key == pygame.K_RIGHT:
+            # Move the ship to the right.
+            self.ship.moving_right = True
+        elif event.key == pygame.K_LEFT:
+            # Move the ship to the left.
+            self.ship.moving_left = True
+        elif event.key == pygame.K_SPACE:
+            self._fire_bullet()
+        elif event.key == pygame.K_ESCAPE:
+            sys.exit()
 
     def _check_keyup_events(self, event):
         # Respond to key releases.
@@ -151,7 +151,7 @@ self.settings.bg_color)
             # Decrement ships left
             self.stats.ships_left -= 1
 
-            #Time Out Text
+            # Time Out Text
             self.time_out_rect.center = self.screen.get_rect().center
             self.screen.blit(self.time_out_text, self.time_out_rect)
 
@@ -166,12 +166,11 @@ self.settings.bg_color)
             self._create_target()
             self.ship.center_ship()
 
-            #Decrement the lives display.
+            # Decrement the lives display.
             lives = self.lives.sprites()
             lost_life = lives[-1]
             self.lives.remove(lost_life)
             self._draw_lives()
-
 
             # Pause.
             time.sleep(0.5)
@@ -187,7 +186,7 @@ self.settings.bg_color)
         self.target.x = random.randrange(int(self.screen.get_rect().width))
         self.target.rect.x = self.target.x
         self.target.y = random.randrange(int(self.screen.get_rect().height *
-0.75))
+                                             0.75))
         self.target.rect.y = self.target.y
         self.targets.add(self.target)
 
@@ -213,17 +212,16 @@ self.settings.bg_color)
         # Check for any bullets that have hit targets.
         #  If so, get rid of the bullet and the target.
         collisions = pygame.sprite.groupcollide(self.bullets, self.targets,
-True, True)
+                                                True, True)
 
         if collisions:
             for targets in collisions.values():
-                self.targets_hit +=1
+                self.targets_hit += 1
                 self.stats.score += self.settings.targetWorth * len(targets)
                 self.sb.prep_score()
                 self.sb.check_high_score()
 
-
-        if not self.target in self.targets:
+        if self.target not in self.targets:
             self._start_new_level()
 
     def _start_new_level(self):
@@ -244,12 +242,9 @@ True, True)
     def _check_time(self):
         self.seconds += self.timer.get_time() / 1000
         self.timertext = self.timerfont.render(str(int(self.seconds)), True,
-(0, 0,
-0),
-(255, 255, 255))
+                                               (0, 0, 0), (255, 255, 255))
         self.timerrect = self.timertext.get_rect()
         self.timerrect.midtop = self.screen.get_rect().midtop
-
 
     def _reset_timer(self):
         self.seconds = 0
@@ -267,29 +262,29 @@ True, True)
         self.lives.draw(self.screen)
 
     def _update_screen(self):
-            # Update images on screen and flip to the new screen.
-            self.screen.fill(self.bg_color)
-            self.ship.blitme()
-            self._draw_lives()
-            for bullet in self.bullets.sprites():
-                bullet.draw_bullet()
-            self.targets.draw(self.screen)
-            self.sb.show_score()
-            self.screen.blit(self.timertext, self.timerrect)
+        # Update images on screen and flip to the new screen.
+        self.screen.fill(self.bg_color)
+        self.ship.blitme()
+        self._draw_lives()
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
+        self.targets.draw(self.screen)
+        self.sb.show_score()
+        self.screen.blit(self.timertext, self.timerrect)
 
-            # Draw the play button if the game is inactive.
-            if not self.stats.game_active and self.game_over_flag == False:
-                self.play_button.draw_button()
-            elif not self.stats.game_active and self.game_over_flag == True:
-                self.game_over_rect.center = self.screen.get_rect().center
-                self.game_over_rect.y = self.game_over_rect.y - 50
-                self.screen.blit(self.game_over_text, self.game_over_rect)
-                self.play_button.draw_button()
-                pygame.display.update()
-                self.settings.initialize_dynamic_settings()
+        # Draw the play button if the game is inactive.
+        if not self.stats.game_active and not self.game_over_flag:
+            self.play_button.draw_button()
+        elif not self.stats.game_active and self.game_over_flag:
+            self.game_over_rect.center = self.screen.get_rect().center
+            self.game_over_rect.y = self.game_over_rect.y - 50
+            self.screen.blit(self.game_over_text, self.game_over_rect)
+            self.play_button.draw_button()
+            pygame.display.update()
+            self.settings.initialize_dynamic_settings()
 
             # Make the most recently drawn screen visible.
-            pygame.display.flip()
+        pygame.display.flip()
 
     def run_game(self):
         self._init_lives()
@@ -302,18 +297,28 @@ True, True)
                 self._check_time()
                 self.ship.update()
                 self._update_bullets()
-            '''When 3 seconds passes without the target being hit, restart the
-            game and remove a life.'''
+            # When 3 seconds passes without the target being hit, restart the
+            # game and remove a life.
             if self.seconds > 4:
                 self.targets.empty()
                 self._reset_timer()
                 self._create_target()
                 self._ship_hit()
 
-
             self._update_screen()
+
+    def exit_handler(self):
+        with open("highscore.txt", "r+") as score_file:
+            score_file.write(str(self.stats.high_score))
+            print("exited")
+            self.stats.score_file.close()
+        sys.exit()
+
 
 if __name__ == '__main__':
     # Make a game instance, and run the game.
     tp_game = TargetPractice()
-    tp_game.run_game()
+    try:
+        tp_game.run_game()
+    finally:
+        tp_game.exit_handler()
